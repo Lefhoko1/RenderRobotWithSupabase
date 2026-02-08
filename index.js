@@ -199,6 +199,17 @@ function startHealthServer(bot) {
     } else if (req.url === '/stats') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(bot.getStats(), null, 2));
+    } else if (req.url === '/trade' && req.method === 'POST') {
+      // Trigger trading cycle via HTTP POST
+      bot.executeTradingCycle()
+        .then(() => {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: 'trade executed', stats: bot.getStats() }));
+        })
+        .catch(error => {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: 'error', error: error.message }));
+        });
     } else {
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(`
